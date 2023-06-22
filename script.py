@@ -7,6 +7,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
 n = '\n'
+user = {"user_district": None, "user_clinic": None, "user_doctor_specification": None, "user_doctor": None}
 
 
 def get_user_input(driver_data):
@@ -33,23 +34,22 @@ def choice_output(text, search_element, element):
 chrome_options = Options()
 chrome_options.add_argument("--headless")
 driver = webdriver.Chrome(options=chrome_options)
-"""Обычный браузер с открытием 
-driver = Chrome()"""
+# driver = Chrome() # обычный браузер
 driver.maximize_window()
 driver.implicitly_wait(20)
 driver.get("https://gorzdrav.spb.ru/service-free-schedule")
 
-# ################################################## DISTRICT
-"""Поиск и вывод списка районов"""
-
-district_buttons = driver.find_elements(By.XPATH, '/html/body/div/div[1]/div[12]/div[3]/div[1]/div[2]/div[1]/div/div['
-                                                  '1]/ul/li')
-for dist_number in range(len(district_buttons)):
-    print(f"{dist_number + 1} - {district_buttons[dist_number].text}")
 
 """Выбор района и нажатие на кнопку"""
-district = get_user_input(district_buttons)
-print(f" Выбран район: {district_buttons[district - 1].text}")
+district_buttons = driver.find_elements(By.XPATH, '/html/body/div/div[1]/div[12]/div[3]/div[1]/div[2]/div[1]/div/div['
+                                                  '1]/ul/li')
+if user["user_district"] is None:
+    for dist_number in range(len(district_buttons)):
+        print(f"{dist_number + 1} - {district_buttons[dist_number].text}")
+    district = get_user_input(district_buttons)
+    print(f" Выбран район: {district_buttons[district - 1].text}")
+else:
+    district = user["user_district"]
 district_buttons[district - 1].click()
 
 # #################################################### CLINIC
@@ -61,40 +61,34 @@ clinic_button = driver.find_elements(By.XPATH, '//*[@id="serviceMoOutput"]/div/b
 clinic_button[clinic - 1].click()
 
 # ##################################################### SPECIFICATION
-"""Поиск и вывод списка специализаций врачей"""
-doctor_list = driver.find_elements(By.XPATH, '//*[@id="specialitiesOutput"]/div')
-list_output(doctor_list)
-
 """Выбор специализации и нажитие на кнопку"""
-
-doctor = get_user_input(doctor_list)
-choice_output("Выбрана специализация", doctor_list, doctor)
-
+doctor_list_specifications = driver.find_elements(By.XPATH, '//*[@id="specialitiesOutput"]/div')
+list_output(doctor_list_specifications)
+doctor = get_user_input(doctor_list_specifications)
+choice_output("Выбрана специализация", doctor_list_specifications, doctor)
 doctor_button = driver.find_elements(By.XPATH, '//*[@id="specialitiesOutput"]/div/button')
 doctor_button[doctor - 1].click()
 
 # ##################################################### DOCTOR
-"""Поиск и вывод списка врачей"""
-doctor_two_list = driver.find_elements(By.XPATH, '//*[@id="doctorsOutput"]/div')
-list_output(doctor_two_list)
-
-"""Выбор врача и нажатие на кнопку"""
-doctor_two = get_user_input(doctor_two_list)
-choice_output("Выбран врач", doctor_two_list, doctor_two)
+"""вывод списка врачей"""
+doctor_list = driver.find_elements(By.XPATH, '//*[@id="doctorsOutput"]/div')
+list_output(doctor_list)
+doctor = get_user_input(doctor_list)
+choice_output("Выбран врач", doctor_list, doctor)
 doctor_two_button = driver.find_elements(By.XPATH, '//*[@id="doctorsOutput"]/div/div[1]/div[2]/div[2]')
-doctor_two_button[doctor_two - 1].click()
+doctor_two_button[doctor - 1].click()
 
 # ##################################################### FREE_TIME
 """Получение номера контейнера в котором хранится свободное время для записи"""
-free_time = driver.find_element(By.XPATH, '//*[@id="doctorsOutput"]/div/div[2]/div/div[2]/div[1]/ul/div')
-per = free_time.get_attribute('id')
+free_time_container = driver.find_element(By.XPATH, '//*[@id="doctorsOutput"]/div/div[2]/div/div[2]/div[1]/ul/div')
+per = free_time_container.get_attribute('id')
 
 """Выбор первого свободного времени в списке и нажатие на него"""
-free_number = driver.find_elements(By.XPATH, f'//*[@id="{per}_container"]/li')
-free_number[0].click()
+free_time_button = driver.find_elements(By.XPATH, f'//*[@id="{per}_container"]/li')
+free_time_button[0].click()
 
 """Нажатие на кнопку ЗАПИСАТЬСЯ"""
-sign_up_button = driver.find_element(By.XPATH, f'//*[@id="doctorsOutput"]/div[{doctor_two}]/div[2]/div/div[2]/div[2]/button')
+sign_up_button = driver.find_element(By.XPATH, f'//*[@id="doctorsOutput"]/div[{doctor}]/div[2]/div/div[2]/div[2]/button')
 sign_up_button.click()
 
 """Форма для заполнения"""
@@ -106,7 +100,6 @@ for one_form_line in patient_form:
     print(one_form_line.text)
 
 """Вывод информации о записи пациента"""
-
 info = driver.find_element(By.XPATH, '/html/body/div/div[1]/div[12]/div[2]')
 for inf in info.text.splitlines():
     if re.search('Выбрать', inf) is None:
