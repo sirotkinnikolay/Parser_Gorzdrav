@@ -2,24 +2,26 @@ import re
 import time
 from selenium.webdriver import Chrome
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 n = '\n'
 
 driver = Chrome()
+driver.implicitly_wait(20)
 driver.get("https://gorzdrav.spb.ru/service-free-schedule")
-time.sleep(2)
 
 # ################################################## DISTRICT
 """ПОиск и вывод списка районов"""
+
 district_buttons = driver.find_elements(By.XPATH, '/html/body/div/div[1]/div[12]/div[3]/div[1]/div[2]/div[1]/div/div['
-                                                  '1]/ul/li')
+                                                 '1]/ul/li')
 for dist_number in range(len(district_buttons)):
     print(f"{dist_number + 1} - {district_buttons[dist_number].text}")
 """Выбор района и нажатие на кнопку"""
 district = int(input('Выберите район: '))
 print(f" Выбран район: {district_buttons[district - 1].text}")
 district_buttons[district - 1].click()
-time.sleep(5)
 
 # #################################################### CLINIC
 clinic_list = driver.find_elements(By.XPATH, '//*[@id="serviceMoOutput"]/div')
@@ -29,7 +31,6 @@ clinic = int(input("Выберите поликлинику: "))
 print(f"Выбрана поликлиника: {clinic_list[clinic - 1].text.split(n, 1)[0][8:]}")
 clinic_button = driver.find_elements(By.XPATH, '//*[@id="serviceMoOutput"]/div/button')
 clinic_button[clinic - 1].click()
-time.sleep(5)
 
 # ##################################################### SPECIFICATION
 """Поиск и вывод списка специализаций врачей"""
@@ -42,7 +43,6 @@ doctor = int(input("Выберите специализацию: "))
 print(f"Выбрана специализация: {doctor_list[doctor - 1].text.split(n, 1)[0]}")
 doctor_button = driver.find_elements(By.XPATH, '//*[@id="specialitiesOutput"]/div/button')
 doctor_button[doctor - 1].click()
-time.sleep(5)
 
 # ##################################################### DOCTOR
 """Поиск и вывод списка врачей"""
@@ -55,7 +55,6 @@ doctor_two = int(input("Выберите врача: "))
 print(f"Выбран врач: {doctor_two_list[doctor_two - 1].text.split(n, 1)[0]}")
 doctor_two_button = driver.find_elements(By.XPATH, '//*[@id="doctorsOutput"]/div/div[1]/div[2]/div[2]')
 doctor_two_button[doctor_two - 1].click()
-time.sleep(5)
 
 # ##################################################### FREE_TIME
 """Получение номера контейнера в котором хранится свободное время для записи"""
@@ -70,8 +69,6 @@ free_number[0].click()
 cl_button = driver.find_element(By.XPATH, f'//*[@id="doctorsOutput"]/div[{doctor_two}]/div[2]/div/div[2]/div[2]/button')
 cl_button.click()
 time.sleep(5)
-
-
 """Вывод информации о записи пациента"""
 info = driver.find_element(By.XPATH, '/html/body/div/div[1]/div[12]/div[2]')
 for inf in info.text.splitlines():
