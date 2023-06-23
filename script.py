@@ -1,5 +1,7 @@
 import re
 import time
+
+from selenium.common import NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -7,7 +9,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
 n = '\n'
-user = {"user_district": None, "user_clinic": None, "user_doctor_specification": None, "user_doctor": None}
+user = {"user_district": 1, "user_clinic": 1, "user_doctor_specification": 8, "user_doctor": 1}
 
 
 def get_user_input(driver_data):
@@ -32,13 +34,12 @@ def choice_output(text, search_element, element):
 
 """Безголовый браузер"""
 chrome_options = Options()
-chrome_options.add_argument("--headless")
+# chrome_options.add_argument("--headless")
 driver = webdriver.Chrome(options=chrome_options)
 # driver = Chrome() # обычный браузер
 driver.maximize_window()
 driver.implicitly_wait(20)
 driver.get("https://gorzdrav.spb.ru/service-free-schedule")
-
 
 """Выбор района и нажатие на кнопку"""
 district_buttons = driver.find_elements(By.XPATH, '/html/body/div/div[1]/div[12]/div[3]/div[1]/div[2]/div[1]/div/div['
@@ -80,15 +81,28 @@ doctor_two_button[doctor - 1].click()
 
 # ##################################################### FREE_TIME
 """Получение номера контейнера в котором хранится свободное время для записи"""
+###################################################################################################################
 free_time_container = driver.find_element(By.XPATH, '//*[@id="doctorsOutput"]/div/div[2]/div/div[2]/div[1]/ul/div')
 per = free_time_container.get_attribute('id')
 
 """Выбор первого свободного времени в списке и нажатие на него"""
-free_time_button = driver.find_elements(By.XPATH, f'//*[@id="{per}_container"]/li')
-free_time_button[0].click()
+
+def timer(driver_cr, per_cr):
+    try:
+        free_time_button = driver_cr.find_elements(By.XPATH, f'//*[@id="{per_cr}_container"]/li')
+        return free_time_button
+    except:
+        driver_cr.refresh()
+        print("reload")
+        timer(driver_cr, per_cr)
+
+
+timer(driver, per)[0].click()
+#############################################################################################################
 
 """Нажатие на кнопку ЗАПИСАТЬСЯ"""
-sign_up_button = driver.find_element(By.XPATH, f'//*[@id="doctorsOutput"]/div[{doctor}]/div[2]/div/div[2]/div[2]/button')
+sign_up_button = driver.find_element(By.XPATH,
+                                     f'//*[@id="doctorsOutput"]/div[{doctor}]/div[2]/div/div[2]/div[2]/button')
 sign_up_button.click()
 
 """Форма для заполнения"""
