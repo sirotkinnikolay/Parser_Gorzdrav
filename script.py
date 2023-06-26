@@ -1,4 +1,3 @@
-import re
 import time
 from selenium.common import NoSuchElementException, ElementClickInterceptedException, TimeoutException
 from selenium.webdriver.common.by import By
@@ -6,8 +5,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.keys import Keys
-import datetime
+
 
 n = '\n'
 
@@ -34,7 +32,7 @@ def choice_output(text, search_element, element):
 
 """Безголовый браузер"""
 chrome_options = Options()
-# chrome_options.add_argument("--headless")
+chrome_options.add_argument("--headless")
 driver = webdriver.Chrome(options=chrome_options)
 driver.maximize_window()
 driver.implicitly_wait(20)
@@ -89,7 +87,7 @@ def timer(driver_cr):
         timer(driver_cr)
 
 
-time.sleep(5)
+time.sleep(2)
 timer(driver)[0].click()
 
 
@@ -101,7 +99,6 @@ def sign_up_button_function(driver_but):
                                                  f'2]/button')
         sign_up_button.click()
     except ElementClickInterceptedException:
-        print("ошибка кнопки ЗАПИСЬ")
         driver_but.refresh()
         sign_up_button_function(driver_but)
 
@@ -129,7 +126,12 @@ approval_button = driver.find_element(By.XPATH, '//*[@id="checkPatientForm"]/div
 approval_button.click()
 total_send_button = driver.find_element(By.XPATH, '//*[@id="checkPatientForm"]/div[3]/button')
 total_send_button.click()
-# Проверка ответа сервера о записи
+
+if driver.find_elements(By.XPATH, '//*[@id="error-modal"]'):
+    print("Ваши  личные данные введены неверно.")
+else:
+    print('Вы записаны ко врачу, проверьте ваш личный кабинет.')
+
 time.sleep(20)
 
 
