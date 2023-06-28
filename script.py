@@ -5,9 +5,10 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-
+import re
 
 n = '\n'
+user_data = []
 
 
 def get_user_input(driver_data):
@@ -30,6 +31,42 @@ def choice_output(text, search_element, element):
     print(f" {text}: {search_element[element - 1].text.split(n, 1)[0]}")
 
 
+def match(text, alphabet=None):
+    if alphabet is None:
+        alphabet = set('абвгдеёжзийклмнопрстуфхцчшщъыьэюя')
+    return not alphabet.isdisjoint(text.lower())
+
+
+def user_data_input():
+    user_data_text = ['Фамилия(Иванов):', 'Имя(Иван):', 'Отчество(Иванович):',
+                      'Дата рождения(30.12.1998):', 'Email(test@mail.ru):', 'Телефон(+79994455)']
+    for count, text in zip(range(1, 7), user_data_text):
+        one = str(input(text))
+        if not match(one) and count <= 3:
+            print('Ввод на русском')
+            user_data.clear()
+            user_data_input()
+        user_data.append(one)
+        if not re.match(r"[^@]+@[^@]+\.[^@]+", one) and count == 5:
+            print("Неправильно введена почта")
+            user_data.clear()
+            user_data_input()
+        user_data.append(one)
+        if not re.match(r"ВВЕСТИ ПРОВЕРКУ ФОРМАТА ДАТЫ РОЖДЕНИЯ", one) and count == 4: #####################
+            print("Неправильно введена дата рождения")
+            user_data.clear()
+            user_data_input()
+        user_data.append(one)
+        if not re.match(r"ВВЕСТИ ПРОВЕРКУ ФОРМАТА ТЕЛЕФОННОГО НОМЕРА", one) and count == 6: #####################
+            print("Неправильно введен телефон")
+            user_data.clear()
+            user_data_input()
+        user_data.append(one)
+
+    print(user_data)
+
+
+
 """Безголовый браузер"""
 chrome_options = Options()
 chrome_options.add_argument("--headless")
@@ -37,6 +74,8 @@ driver = webdriver.Chrome(options=chrome_options)
 driver.maximize_window()
 driver.implicitly_wait(20)
 driver.get("https://gorzdrav.spb.ru/service-free-schedule")
+
+user_data_input()
 
 """Выбор района и нажатие на кнопку"""
 district_buttons = driver.find_elements(By.XPATH, '/html/body/div/div[1]/div[12]/div[3]/div[1]/div[2]/div[1]/div/div['
@@ -105,11 +144,6 @@ def sign_up_button_function(driver_but):
 
 sign_up_button_function(driver)
 
-# ################################# ДАННЫЕ ПОЛЬЗОВАТЕЛЯ ####################################
-user_born = '05.10.1986'
-user_data = ['Иванов', 'Владимир', 'Петрович', None, 'test_user@mail.ru', '+79097863245']
-# ##########################################################################################
-
 """Заполнение формы данными пользователя"""
 wait = WebDriverWait(driver, 10)
 patient_form = wait.until(
@@ -117,11 +151,12 @@ patient_form = wait.until(
 
 for form_number, user_text in zip(range(1, 7), user_data):
     if form_number == 4:
+        driver.find_element(By.XPATH, '//*[@id="checkPatientForm"]/div[2]/div[4]/div/input').send_keys(
+            user_data[form_number - 1])
         continue
     driver.find_element(By.XPATH, f'//*[@id="checkPatientForm"]/div[2]/div[{form_number}]/input').send_keys(
         user_text)
 
-driver.find_element(By.XPATH, '//*[@id="checkPatientForm"]/div[2]/div[4]/div/input').send_keys(user_born)
 approval_button = driver.find_element(By.XPATH, '//*[@id="checkPatientForm"]/div[3]/label/input')
 approval_button.click()
 total_send_button = driver.find_element(By.XPATH, '//*[@id="checkPatientForm"]/div[3]/button')
@@ -133,5 +168,3 @@ else:
     print('Вы записаны ко врачу, проверьте ваш личный кабинет.')
 
 time.sleep(20)
-
-
