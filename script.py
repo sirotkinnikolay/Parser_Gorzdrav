@@ -6,12 +6,14 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import re
+import traceback
 
 n = '\n'
 user_data = []
 
 
 def get_user_input(driver_data):
+    """Функция проверки корректного выбора пользователем из списка"""
     while True:
         try:
             user_input = int(input("Введите выбранный номер: "))
@@ -23,56 +25,60 @@ def get_user_input(driver_data):
 
 
 def list_output(search_data):
+    """Функция вывода списка для выбора"""
     for number in range(len(search_data)):
         print(f"{number + 1} - {search_data[number].text.split(n, 1)[0]}")
 
 
 def choice_output(text, search_element, element):
+    """Функция вывода результата выбора пользователя"""
     print(f" {text}: {search_element[element - 1].text.split(n, 1)[0]}")
 
 
-def match(text, alphabet=None):
+def match_letter(text, alphabet=None):
+    """Функция проверки ввода русскими буквами"""
     if alphabet is None:
         alphabet = set('абвгдеёжзийклмнопрстуфхцчшщъыьэюя')
     return not alphabet.isdisjoint(text.lower())
 
 
+def user_info_input(regular, text_func):
+    """ Функция проверки ввода данных пользователем """
+    user_info = str(input(text_func))
+    if not re.match(regular, user_info):
+        print("Неправильный ввод: " + text_func)
+        user_info_input(regular, text_func)
+    else:
+        user_data.append(user_info)
+
+
 def user_data_input():
+    """Функция ввода данных пользователя"""
     user_data_text = ['Фамилия(Иванов):', 'Имя(Иван):', 'Отчество(Иванович):',
-                      'Дата рождения(30.12.1998):', 'Email(test@mail.ru):', 'Телефон(+79994455)']
+                      'Дата рождения(30.12.1998):', 'Email(test@mail.ru):', 'Телефон(+79994445590)']
     for count, text in zip(range(1, 7), user_data_text):
-        one = str(input(text))
-        if not match(one) and count <= 3:
-            print('Ввод на русском')
-            user_data.clear()
-            user_data_input()
-        user_data.append(one)
-        if not re.match(r"[^@]+@[^@]+\.[^@]+", one) and count == 5:
-            print("Неправильно введена почта")
-            user_data.clear()
-            user_data_input()
-        user_data.append(one)
-        if not re.match(r"ВВЕСТИ ПРОВЕРКУ ФОРМАТА ДАТЫ РОЖДЕНИЯ", one) and count == 4: #####################
-            print("Неправильно введена дата рождения")
-            user_data.clear()
-            user_data_input()
-        user_data.append(one)
-        if not re.match(r"ВВЕСТИ ПРОВЕРКУ ФОРМАТА ТЕЛЕФОННОГО НОМЕРА", one) and count == 6: #####################
-            print("Неправильно введен телефон")
-            user_data.clear()
-            user_data_input()
-        user_data.append(one)
-
-    print(user_data)
+        if count <= 3:
+            surname_name_patronymic = str(input(text))
+            if not match_letter(surname_name_patronymic) and count <= 3:
+                print('Введите русскими буквами.')
+                user_data.clear()
+                user_data_input()
+            user_data.append(surname_name_patronymic)
+        if count == 4:
+            user_info_input(r"\d\d[.]\d\d[.]\d{4}", text)
+        if count == 5:
+            user_info_input(r"[^@]+@[^@]+\.[^@]+", text)
+        if count == 6:
+            user_info_input(r"[+]\d{11}", text)
+    return
 
 
-
-"""Безголовый браузер"""
+"""'Безголовый' браузер"""
 chrome_options = Options()
 chrome_options.add_argument("--headless")
 driver = webdriver.Chrome(options=chrome_options)
 driver.maximize_window()
-driver.implicitly_wait(20)
+driver.implicitly_wait(300)
 driver.get("https://gorzdrav.spb.ru/service-free-schedule")
 
 user_data_input()
@@ -90,7 +96,7 @@ district_buttons[district - 1].click()
 clinic_list = driver.find_elements(By.XPATH, '//*[@id="serviceMoOutput"]/div')
 list_output(clinic_list)
 clinic = get_user_input(clinic_list)
-choice_output("Выбрана поликлиника", clinic_list, clinic)
+choice_output("Выбрана поликлиника: ", clinic_list, clinic)
 clinic_button = driver.find_elements(By.XPATH, '//*[@id="serviceMoOutput"]/div/button')
 clinic_button[clinic - 1].click()
 
@@ -98,7 +104,7 @@ clinic_button[clinic - 1].click()
 doctor_list_specifications = driver.find_elements(By.XPATH, '//*[@id="specialitiesOutput"]/div')
 list_output(doctor_list_specifications)
 doctor = get_user_input(doctor_list_specifications)
-choice_output("Выбрана специализация", doctor_list_specifications, doctor)
+choice_output("Выбрана специализация: ", doctor_list_specifications, doctor)
 doctor_button = driver.find_elements(By.XPATH, '//*[@id="specialitiesOutput"]/div/button')
 doctor_button[doctor - 1].click()
 
@@ -106,7 +112,7 @@ doctor_button[doctor - 1].click()
 doctor_list = driver.find_elements(By.XPATH, '//*[@id="doctorsOutput"]/div')
 list_output(doctor_list)
 doctor = get_user_input(doctor_list)
-choice_output("Выбран врач", doctor_list, doctor)
+choice_output("Выбран врач: ", doctor_list, doctor)
 doctor_two_button = driver.find_elements(By.XPATH, '//*[@id="doctorsOutput"]/div/div[1]/div[2]/div[2]')
 doctor_two_button[doctor - 1].click()
 
@@ -162,9 +168,16 @@ approval_button.click()
 total_send_button = driver.find_element(By.XPATH, '//*[@id="checkPatientForm"]/div[3]/button')
 total_send_button.click()
 
-if driver.find_elements(By.XPATH, '//*[@id="error-modal"]'):
-    print("Ваши  личные данные введены неверно.")
-else:
+try:
+    approval_button_complete = driver.find_element(By.XPATH, '//html/body/div/div[1]/div[12]/div[3]/div[7]/div/div['
+                                                             '3]/label/input')
+    approval_button_complete.click()
+    total_send_button_complete = driver.find_element(By.XPATH, '//html/body/div/div[1]/div[12]/div[3]/div[7]/div/div['
+                                                               '5]/div[1]/button[1]')
+    total_send_button_complete.click()
     print('Вы записаны ко врачу, проверьте ваш личный кабинет.')
+
+except ElementNotInteractableException:
+    print("Мы не нашли Вашу карточку в выбранной медорганизации. Проверьте корректность введенных данных.")
 
 time.sleep(20)
