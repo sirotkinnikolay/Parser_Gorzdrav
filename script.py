@@ -1,5 +1,6 @@
 import time
-from selenium.common import NoSuchElementException, ElementClickInterceptedException, TimeoutException
+from selenium.common import NoSuchElementException, ElementClickInterceptedException, TimeoutException,\
+    ElementNotInteractableException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
