@@ -11,7 +11,12 @@
 
 1. Установите Python с официального сайта:  https://www.python.org/downloads/release/python-395/ 
 версия 3.9.5
-2. Скачайте на свой компьютер архив с проектом и распакуйте его:
+2. Загрузите и установите с официального сайта Google Chrome: https://www.google.ru/intl/ru/chrome/browser-tools/
+3. Установите ***Chromedriver***, для этого необходимо знать версию вашего браузера Google Chrome:
+Откройте браузер Chrome нажмем три точки >>> «Справка» >>> «О браузере Google Chrome».
+Загрузите и установите ***Chromedriver*** с официального сайта:
+https://sites.google.com/chromium.org/driver/downloads
+2. Загрузите на свой компьютер архив с проектом и распакуйте его:
 ![img.png](img.png)
 https://github.com/sirotkinnikolay/Parser_Gorzdrav.git
 3. Запустите командную строку:
