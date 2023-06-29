@@ -7,7 +7,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import re
-import traceback
 
 n = '\n'
 user_data = []
@@ -76,10 +75,11 @@ def user_data_input():
 
 """'Безголовый' браузер"""
 chrome_options = Options()
+chrome_options.add_argument('--log-level=3')
 chrome_options.add_argument("--headless")
 driver = webdriver.Chrome(options=chrome_options)
 driver.maximize_window()
-driver.implicitly_wait(300)
+driver.implicitly_wait(10)
 driver.get("https://gorzdrav.spb.ru/service-free-schedule")
 
 user_data_input()
@@ -177,8 +177,10 @@ try:
                                                                '5]/div[1]/button[1]')
     total_send_button_complete.click()
     print('Вы записаны ко врачу, проверьте ваш личный кабинет.')
+    print("Для выхода из программы нажмите CTRL + C")
 
 except ElementNotInteractableException:
     print("Мы не нашли Вашу карточку в выбранной медорганизации. Проверьте корректность введенных данных.")
+    print("Для выхода из программы нажмите CTRL + C")
 
 time.sleep(20)
