@@ -17,7 +17,7 @@
 Загрузите и установите ***Chromedriver*** с официального сайта:
 https://sites.google.com/chromium.org/driver/downloads
 2. Загрузите на свой компьютер архив с проектом и распакуйте его:
-![img.png](img.png)
+![img.png](picture/img.png)
 https://github.com/sirotkinnikolay/Parser_Gorzdrav.git
 3. Запустите командную строку:
 Нажмите "Windows" + "R", чтобы открыть программу Run. Введите "cmd" и нажмите "Enter".
