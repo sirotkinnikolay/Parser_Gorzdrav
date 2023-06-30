@@ -91,12 +91,11 @@ def script():
                                                              '5]/div[1]/button[1]')
             total_send_button_complete.click()
             print('Вы записаны ко врачу, проверьте ваш личный кабинет.')
-            print("Для выхода из программы нажмите CTRL + C")
+            input('Нажмите ENTER для выхода')
 
         except ElementNotInteractableException:
             print("Мы не нашли Вашу карточку в выбранной медорганизации. Проверьте корректность введенных данных.")
-            print("Для выхода из программы нажмите CTRL + C")
-            script()
+            input('Нажмите ENTER для выхода')
 
     except BaseException as err:
         print("Произошла ошибка, попробуйте еще раз.")
