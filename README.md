@@ -9,9 +9,9 @@
 вы сможете проверить в своем личном кабинете на сайте ***gorzdrav.spb.ru***. Обо всех
 действиях программы вас будут уведомлять сообщения в командной строке.
 
-1. Установите Python с официального сайта:  https://www.python.org/downloads/release/python-395/ 
+1. Установите ***Python*** с официального сайта:  https://www.python.org/downloads/release/python-395/ 
 версия 3.9.5
-2. Загрузите и установите с официального сайта Google Chrome: https://www.google.ru/intl/ru/chrome/browser-tools/
+2. Загрузите и установите с официального сайта ***Google Chrome***: https://www.google.ru/intl/ru/chrome/browser-tools/
 3. Установите ***Chromedriver***, для этого необходимо знать версию вашего браузера Google Chrome:
 Откройте браузер Chrome нажмем три точки >>> «Справка» >>> «О браузере Google Chrome».
 Загрузите и установите ***Chromedriver*** с официального сайта:
